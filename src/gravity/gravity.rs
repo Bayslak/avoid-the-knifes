@@ -1,6 +1,6 @@
 use::bevy::prelude::*;
 
-use crate::{movement::Movement, terrain::{self, Terrain}};
+use crate::{movement::movement::Movement, terrain::terrain::Terrain};
 
 pub struct GravityPlugin;
 
@@ -33,8 +33,8 @@ fn entity_is_touching_terrain(mut movement_query: Query<(&mut Movement, &Transfo
 
             let distance = transform.translation - terrain_transform.translation;
 
-            if distance.x < entity_half_size.x + terrain_half_size.x && 
-               distance.y < entity_half_size.y + terrain_half_size.y {
+            if distance.x.abs() < entity_half_size.x + terrain_half_size.x && 
+               distance.y.abs() < entity_half_size.y + terrain_half_size.y {
                 movement.gravity.is_touching_terrain = true;
             } else {
                 movement.gravity.is_touching_terrain = false;

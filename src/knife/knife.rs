@@ -1,6 +1,9 @@
 use::bevy::prelude::*;
 
-use crate::{gravity::Gravity, movement::{Body, Movement}, player::Player};
+use crate::gravity::gravity::Gravity;
+use crate::movement::movement::{Body, Movement};
+use crate::player::player::Player;
+use crate::points::points::Points;
 
 pub struct KnifePlugin;
 
@@ -43,7 +46,7 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
             transform: Transform {
                 scale: Vec3::splat(4.0),
                 translation: spawn_position,
-            rotation: Quat::from_rotation_z(std::f32::consts::PI),
+                rotation: Quat::from_rotation_z(std::f32::consts::PI),
                 ..default()
             },
             ..default()
@@ -60,10 +63,11 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
     });
 }
 
-fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>) {
+fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>, mut points: ResMut<Points>) {
     for (knife, &ref movement) in knife_query.iter() {
         if movement.gravity.is_touching_terrain {
             commands.entity(knife).despawn();
+            points.value += 1;
         }
     }
 }
@@ -78,10 +82,11 @@ fn check_if_touch_player(mut commands: Commands, mut ev_player_touched: EventWri
             
             let distance = transform.translation - player_transform.translation;
 
-            if distance.x < knife_half_size.x + player_half_size.x && distance.y < knife_half_size.y + player_half_size.y {
-                ev_player_touched.send(PlayerHitEvent { damage: knife.damage} );
-                commands.entity(entity).despawn();
-            }
+            if distance.x.abs() < knife_half_size.x + player_half_size.x &&
+                       distance.y.abs() < knife_half_size.y + player_half_size.y {
+                        ev_player_touched.send(PlayerHitEvent { damage: knife.damage });
+                        commands.entity(entity).despawn();
+                    }
         }
     }
 }

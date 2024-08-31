@@ -1,6 +1,6 @@
 use::bevy::prelude::*;
 
-use crate::gravity::Gravity;
+use crate::gravity::gravity::Gravity;
 
 
 pub struct MovementPlugin;
