@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, scene::ron::de};
 
 pub struct TerrainPlugin;
 
@@ -20,6 +20,10 @@ fn spawn_terrain(mut commands: Commands, asset_server: Res<AssetServer>, window_
     commands.spawn(( 
             SpriteBundle {
                 texture: asset_server.load(TERRAIN_SPRITE_PATH),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(16.0, 16.0)),
+                    ..default()
+                },
                 transform: Transform {
                     translation: Vec3::new(-(window.width() - 16.0) / 2.0, -(window.height() - 16.0) / 2.0, 0.0),
                     scale: Vec3::new(window.width(), 4.0, 0.0),
