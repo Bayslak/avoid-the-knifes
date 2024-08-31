@@ -1,6 +1,7 @@
 use std::cell::RefMut;
 
 use bevy::prelude::*;
+use bevy_asset_loader::asset_collection::AssetCollection;
 
 use crate::gravity::gravity::Gravity;
 use crate::knife::knife::PlayerHitEvent;
@@ -11,6 +12,8 @@ use crate::points::points::Points;
 use super::player_input::{InputDirection, MovementInputEvent};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
+const PLAYER_IDLE_PATH: &str = "sprites/skeleton_idle_animaton.png";
+const PLAYER_MOVE_PATH: &str = "sprites/skeleton_move_animaton.png";
 const PLAYER_SPEED: f32 = 500.0;
 
 pub struct PlayerPlugin;
