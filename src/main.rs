@@ -5,6 +5,8 @@ mod player_input;
 mod movement;
 mod knife;
 mod knife_timer;
+mod points;
+mod ui;
 
 use bevy::prelude::*;
 use gravity::GravityPlugin;
@@ -13,7 +15,9 @@ use knife_timer::KnifeSpawnerPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use player_input::{InputPlugin, MovementInputEvent};
+use points::PointsPlugin;
 use terrain::TerrainPlugin;
+use ui::UIPlugin;
 
 // Window
 const WW: f32 = 1200.0;
@@ -40,6 +44,8 @@ fn main() {
                     }),
             )
     .add_plugins((InputPlugin, MovementPlugin, TerrainPlugin, GravityPlugin))
+    .add_plugins(PointsPlugin)
+    .add_plugins(UIPlugin)
     .add_plugins(PlayerPlugin)
     .add_plugins((KnifePlugin, KnifeSpawnerPlugin))
     .insert_resource(Msaa::Off)

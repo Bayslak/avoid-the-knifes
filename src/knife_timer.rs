@@ -6,7 +6,7 @@ use crate::knife::spawn_knife;
 
 pub struct KnifeSpawnerPlugin;
 
-const KNIFE_SPAWN_TIMER: f32 = 1.0;
+const KNIFE_SPAWN_TIMER: f32 = 0.2;
 
 impl Plugin for KnifeSpawnerPlugin {
     fn build(&self, app: &mut App) {
