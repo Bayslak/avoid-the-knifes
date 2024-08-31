@@ -1,7 +1,9 @@
 mod player;
+mod terrain;
 
-use bevy::{input::keyboard::KeyboardInput, prelude::*};
+use bevy::prelude::*;
 use player::PlayerPlugin;
+use terrain::TerrainPlugin;
 
 // Window
 const WW: f32 = 1200.0;
@@ -28,7 +30,7 @@ fn main() {
                         ..default()
                     }),
             )
-    .add_plugins(PlayerPlugin)
+    .add_plugins((TerrainPlugin, PlayerPlugin))
     .insert_resource(Msaa::Off)
     .add_systems(Startup, setup_camera)
     .run();
