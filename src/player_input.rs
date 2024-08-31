@@ -4,6 +4,7 @@ pub struct InputPlugin;
 
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
+       app.add_event::<MovementInputEvent>();
        app.add_systems(Update, movement_input); 
     }
 }
@@ -28,7 +29,9 @@ fn movement_input(mut ev_movement: EventWriter<MovementInputEvent>, input: Res<B
     for key in input.get_pressed() {
         match key {
             KeyCode::KeyA => input_direction = InputDirection::Left,
+            KeyCode::ArrowLeft => input_direction = InputDirection::Left,
             KeyCode::KeyD => input_direction = InputDirection::Right,
+            KeyCode::ArrowRight => input_direction = InputDirection::Right,
             _ => input_direction = InputDirection::None
         }
     }

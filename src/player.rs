@@ -24,13 +24,12 @@ struct PlayerBundle {
 #[derive(Component)]
 struct Player {
     pub speed: f32,
-    pub is_touching: bool,
 }
 
 fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     
     commands.spawn(PlayerBundle {
-        player: Player { speed: PLAYER_SPEED, is_touching: false },
+        player: Player { speed: PLAYER_SPEED },
         sprite: SpriteBundle {
             texture: asset_server.load(PLAYER_SPRITE_PATH),
             sprite: Sprite {
