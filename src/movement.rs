@@ -30,6 +30,5 @@ fn move_entity(mut movement_query: Query<(&Movement, &mut Transform)>, time: Res
         if movement.gravity.is_touching_terrain == false {
             transform.translation.y += movement.body.velocity.y * time.delta_seconds();
         }
-
     }
 }

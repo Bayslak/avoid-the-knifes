@@ -1,6 +1,6 @@
-use bevy::prelude::*;
+use bevy::{ecs::event, prelude::*};
 
-use crate::{gravity::Gravity, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, terrain::Terrain};
+use crate::{gravity::Gravity, knife::PlayerHitEvent, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, terrain::Terrain};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
 const PLAYER_SPEED: f32 = 500.0;
@@ -10,7 +10,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player);
-        app.add_systems(Update, (listen_movement_input));
+        app.add_systems(Update, (listen_movement_input, listen_for_knives));
     }
 }
 
@@ -22,15 +22,14 @@ struct PlayerBundle {
 }
 
 #[derive(Component)]
-struct Player {
+pub struct Player {
     pub speed: f32,
-    pub is_touching: bool,
 }
 
 fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
     
     commands.spawn(PlayerBundle {
-        player: Player { speed: PLAYER_SPEED, is_touching: false },
+        player: Player { speed: PLAYER_SPEED },
         sprite: SpriteBundle {
             texture: asset_server.load(PLAYER_SPRITE_PATH),
             sprite: Sprite {
@@ -68,5 +67,10 @@ fn listen_movement_input(mut ev_movement: EventReader<MovementInputEvent>, mut m
             }
         }
     }
+}
 
+fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>) {
+    for event in ev_player_hit.read() {
+        println!("Ouch, we took {} damage.", event.damage);
+    }
 }

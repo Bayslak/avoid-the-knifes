@@ -3,9 +3,13 @@ mod terrain;
 mod gravity;
 mod player_input;
 mod movement;
+mod knife;
+mod knife_timer;
 
 use bevy::prelude::*;
 use gravity::GravityPlugin;
+use knife::KnifePlugin;
+use knife_timer::KnifeSpawnerPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use player_input::{InputPlugin, MovementInputEvent};
@@ -15,8 +19,7 @@ use terrain::TerrainPlugin;
 const WW: f32 = 1200.0;
 const WH: f32 = 700.0;
 
-// Sprites
-const KNIFE_SPRITE_PATH: &str = "sprites/knife.png";
+
 
 const SPRITE_W: usize = 16;
 const SPRITE_H: usize = 16;
@@ -36,9 +39,10 @@ fn main() {
                         ..default()
                     }),
             )
-    .add_plugins((InputPlugin, MovementPlugin, TerrainPlugin, PlayerPlugin, GravityPlugin))
+    .add_plugins((InputPlugin, MovementPlugin, TerrainPlugin, GravityPlugin))
+    .add_plugins(PlayerPlugin)
+    .add_plugins((KnifePlugin, KnifeSpawnerPlugin))
     .insert_resource(Msaa::Off)
-    .add_event::<MovementInputEvent>()
     .add_systems(Startup, setup_camera)
     .run();
 }
