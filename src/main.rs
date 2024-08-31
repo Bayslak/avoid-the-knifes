@@ -1,8 +1,14 @@
 mod player;
 mod terrain;
+mod gravity;
+mod player_input;
+mod movement;
 
 use bevy::prelude::*;
+use gravity::GravityPlugin;
+use movement::MovementPlugin;
 use player::PlayerPlugin;
+use player_input::{InputPlugin, MovementInputEvent};
 use terrain::TerrainPlugin;
 
 // Window
@@ -30,8 +36,9 @@ fn main() {
                         ..default()
                     }),
             )
-    .add_plugins((TerrainPlugin, PlayerPlugin))
+    .add_plugins((InputPlugin, MovementPlugin, TerrainPlugin, PlayerPlugin, GravityPlugin))
     .insert_resource(Msaa::Off)
+    .add_event::<MovementInputEvent>()
     .add_systems(Startup, setup_camera)
     .run();
 }

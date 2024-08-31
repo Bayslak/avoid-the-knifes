@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::terrain::{self, Terrain};
+use crate::{gravity::Gravity, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, terrain::Terrain};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
 const PLAYER_SPEED: f32 = 500.0;
@@ -10,8 +10,15 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player);
-        app.add_systems(Update, (player_movement, player_is_touching_terrain));
+        app.add_systems(Update, (listen_movement_input));
     }
+}
+
+#[derive(Bundle)]
+struct PlayerBundle {
+    player: Player,
+    sprite: SpriteBundle,
+    movement: Movement
 }
 
 #[derive(Component)]
@@ -21,61 +28,45 @@ struct Player {
 }
 
 fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((SpriteBundle {
-        texture: asset_server.load(PLAYER_SPRITE_PATH),
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(16.0, 16.0)),
+    
+    commands.spawn(PlayerBundle {
+        player: Player { speed: PLAYER_SPEED, is_touching: false },
+        sprite: SpriteBundle {
+            texture: asset_server.load(PLAYER_SPRITE_PATH),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(16.0, 16.0)),
+                ..default()
+            },
+            transform: Transform {
+                scale: Vec3::splat(4.0),
+                ..default()
+            },
             ..default()
         },
-        transform: Transform {
-            scale: Vec3::splat(4.0),
-            ..default()
-        },
-        ..default()
-    }, 
-        Player { speed: PLAYER_SPEED, is_touching: false })).insert(Name::new("Player"));
+        movement: Movement {
+            gravity: Gravity {
+                is_touching_terrain: false
+            },
+            body: Body {
+                mass: 100.0,
+                velocity: Vec2::ZERO
+            }
+        }
+    }).insert(Name::new("Player"));
 }
 
-fn player_movement(mut player: Query<(&mut Transform, &Player)>, input: Res<ButtonInput<KeyCode>>, time: Res<Time>) {
-
-    for (mut transform, player) in &mut player {
-
-        if(player.is_touching) {
-            if input.pressed(KeyCode::KeyD) || input.pressed(KeyCode::ArrowRight) {
-                transform.translation.x += player.speed * time.delta_seconds();
-            }
-            
-            if input.pressed(KeyCode::KeyA) || input.pressed(KeyCode::ArrowLeft) {
-                transform.translation.x -= player.speed * time.delta_seconds();
-            }
-        } else {
-            transform.translation.y -= 980.0 * time.delta_seconds();
-        }
-
-    }
-}
-
-fn player_is_touching_terrain(mut player_query: Query<(&mut Player, &Transform, &Sprite)>, terrain_query: Query<(&Transform, &Sprite, &Terrain), Without<Player>>,) {
-
-    if let Ok((mut player, player_transform, player_sprite)) = player_query.get_single_mut() {
-
-        if let Ok((terrain_transform, terrain_sprite, _terran)) = terrain_query.get_single() {
-            let player_half_size = player_sprite.custom_size.unwrap() * player_transform.scale.truncate() / 2.0;
-            let terrain_half_size = terrain_sprite.custom_size.unwrap() * terrain_transform.scale.truncate() / 2.0;
-            
-            let distance = player_transform.translation - terrain_transform.translation;
+fn listen_movement_input(mut ev_movement: EventReader<MovementInputEvent>, mut movement_query: Query<(&mut Movement, &Player)>) {
     
-            if distance.x < player_half_size.x + terrain_half_size.x &&
-               distance.y < player_half_size.y + terrain_half_size.y {
-                player.is_touching = true;
-                return; 
+    if let Ok((mut movement, player)) = movement_query.get_single_mut() {
+        for input_direction in ev_movement.read() {
+            match input_direction.direction {
+                InputDirection::Left => movement.body.velocity.x = -player.speed,
+                InputDirection::Right => movement.body.velocity.x = player.speed,
+                InputDirection::Up => todo!(),
+                InputDirection::Down => todo!(),
+                InputDirection::None => movement.body.velocity.x = 0.0,
             }
-    
-            player.is_touching = false;
-            return;
         }
-        
-        player.is_touching = false;
-        return;
     }
+
 }
