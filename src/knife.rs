@@ -1,13 +1,13 @@
 use::bevy::prelude::*;
-use bevy::render::render_resource::AsBindGroupShaderType;
 
-use crate::{gravity::Gravity, movement::{self, Body, Movement}};
+use crate::{gravity::Gravity, movement::{Body, Movement}, player::Player};
 
 pub struct KnifePlugin;
 
 impl Plugin for KnifePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, despawn_on_terrain_touch);
+        app.add_event::<PlayerHitEvent>();
+        app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player));
     }
 }
 
@@ -22,6 +22,11 @@ struct KnifeBundle {
 
 #[derive(Component)]
 struct Knife {
+    pub damage: f32
+}
+
+#[derive(Event)]
+pub struct PlayerHitEvent {
     pub damage: f32
 }
 
@@ -59,6 +64,24 @@ fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, 
     for (knife, &ref movement) in knife_query.iter() {
         if movement.gravity.is_touching_terrain {
             commands.entity(knife).despawn();
+        }
+    }
+}
+
+fn check_if_touch_player(mut commands: Commands, mut ev_player_touched: EventWriter<PlayerHitEvent>, knife_query: Query<(&Movement, &Transform, &Sprite, &Knife, Entity)>, player_query: Query<(&Transform, &Sprite, &Player)>) {
+
+    if let Ok((player_transform, player_sprite, _player)) = player_query.get_single() {
+        let player_half_size = player_sprite.custom_size.unwrap() * player_transform.scale.truncate() / 2.0;
+
+        for (_movement, transform, sprite, knife, entity) in knife_query.iter() {
+            let knife_half_size = sprite.custom_size.unwrap() * transform.scale.truncate() / 2.0;
+            
+            let distance = transform.translation - player_transform.translation;
+
+            if distance.x < knife_half_size.x + player_half_size.x && distance.y < knife_half_size.y + player_half_size.y {
+                ev_player_touched.send(PlayerHitEvent { damage: knife.damage} );
+                commands.entity(entity).despawn();
+            }
         }
     }
 }
