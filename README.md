@@ -1,7 +1,7 @@
 
-# Avoid the Knives
+# Avoid the Knifes
 
-**Avoid the Knives** is an open-source project written in Rust using the [Bevy](https://bevyengine.org/) game engine. This project is a playground to help me learn more about Rust and Bevy while creating a fun and interactive game. The primary objective of the game is to avoid falling knives while collecting coins to increase your score. 
+**Avoid the Knifes** is an open-source project written in Rust using the [Bevy](https://bevyengine.org/) game engine. This project is a playground to help me learn more about Rust and Bevy while creating a fun and interactive game. The primary objective of the game is to avoid falling knives while collecting coins to increase your score. 
 
 As I continue to learn, I will be gradually adding new features to enhance the game. The next planned features include animations and a main menu.
 
@@ -19,8 +19,8 @@ To play or contribute to *Avoid the Knives*, you'll need to have Rust and Cargo 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/avoid-the-knives.git
-   cd avoid-the-knives
+   git clone https://github.com/bayslak/avoid-the-knifes.git
+   cd avoid-the-knifes
    ```
 
 2. **Build the project**:
