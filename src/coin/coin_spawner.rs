@@ -2,7 +2,7 @@ use::bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::Rng;
 
-use crate::coin::spawn_coin;
+use super::coin::spawn_coin;
 
 pub struct CoinSpawnerPlugin;
 

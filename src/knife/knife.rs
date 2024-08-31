@@ -1,6 +1,9 @@
 use::bevy::prelude::*;
 
-use crate::{gravity::Gravity, movement::{Body, Movement}, player::Player, points::Points};
+use crate::gravity::gravity::Gravity;
+use crate::movement::movement::{Body, Movement};
+use crate::player::player::Player;
+use crate::points::points::Points;
 
 pub struct KnifePlugin;
 

@@ -1,8 +1,14 @@
 use std::cell::RefMut;
 
-use bevy::{ecs::event, prelude::*};
+use bevy::prelude::*;
 
-use crate::{coin::CoinTouchedEvent, gravity::Gravity, knife::PlayerHitEvent, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, points::Points, terrain::Terrain};
+use crate::gravity::gravity::Gravity;
+use crate::knife::knife::PlayerHitEvent;
+use crate::movement::movement::{Body, Movement};
+use crate::coin::coin::CoinTouchedEvent;
+use crate::points::points::Points;
+
+use super::player_input::{InputDirection, MovementInputEvent};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
 const PLAYER_SPEED: f32 = 500.0;
@@ -12,7 +18,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player);
-        app.add_systems(Update, (listen_movement_input, listen_for_knives));
+        app.add_systems(Update, (listen_movement_input, listen_for_knives, listen_for_coins));
     }
 }
 
@@ -77,8 +83,11 @@ fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>) {
     }
 }
 
-fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, mut points: RefMut<Points>) {
+fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, points: ResMut<Points>) {
+    
+    let mut points = points.value;
+    
     for event in ev_coin_collected.read() {
-        points.value += event.value;
+        points += event.value;
     }
 }

@@ -1,32 +1,28 @@
 mod player;
 mod terrain;
 mod gravity;
-mod player_input;
 mod movement;
 mod knife;
-mod knife_spawner;
 mod points;
 mod ui;
 mod coin;
-mod coin_spawner;
 
 use bevy::prelude::*;
-use coin::CoinPlugin;
-use coin_spawner::CoinSpawnerPlugin;
-use gravity::GravityPlugin;
-use knife::KnifePlugin;
-use knife_spawner::KnifeSpawnerPlugin;
-use movement::MovementPlugin;
-use player::PlayerPlugin;
-use player_input::{InputPlugin, MovementInputEvent};
-use points::PointsPlugin;
-use terrain::TerrainPlugin;
-use ui::UIPlugin;
+use coin::coin::CoinPlugin;
+use coin::coin_spawner::CoinSpawnerPlugin;
+use gravity::gravity::GravityPlugin;
+use knife::knife::KnifePlugin;
+use knife::knife_spawner::KnifeSpawnerPlugin;
+use movement::movement::MovementPlugin;
+use player::player_input::InputPlugin;
+use player::player::PlayerPlugin;
+use points::points::PointsPlugin;
+use terrain::terrain::TerrainPlugin;
+use ui::ui::UIPlugin;
 
 // Window
 const WW: f32 = 1200.0;
 const WH: f32 = 700.0;
-
 
 
 const SPRITE_W: usize = 16;

@@ -2,7 +2,7 @@ use::bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::{random, Rng};
 
-use crate::knife::spawn_knife;
+use super::knife::spawn_knife;
 
 pub struct KnifeSpawnerPlugin;
 

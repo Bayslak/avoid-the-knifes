@@ -1,7 +1,7 @@
-use bevy::a11y::accesskit::DefaultActionVerb;
 use::bevy::prelude::*;
 
-use crate::points::Points;
+use crate::points::points::Points;
+
 
 pub struct UIPlugin;
 

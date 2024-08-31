@@ -1,6 +1,6 @@
 use::bevy::prelude::*;
 
-use crate::{movement::Movement, terrain::{self, Terrain}};
+use crate::{movement::movement::Movement, terrain::terrain::Terrain};
 
 pub struct GravityPlugin;
 

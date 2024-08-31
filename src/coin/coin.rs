@@ -1,6 +1,7 @@
 use::bevy::prelude::*;
 
-use crate::{gravity::Gravity, movement::{Body, Movement}, player::Player};
+use crate::{gravity::gravity::Gravity, movement::movement::{Body, Movement}, player::player::Player};
+
 
 pub struct CoinPlugin;
 
