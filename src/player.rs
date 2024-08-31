@@ -1,6 +1,8 @@
+use std::cell::RefMut;
+
 use bevy::{ecs::event, prelude::*};
 
-use crate::{gravity::Gravity, knife::PlayerHitEvent, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, terrain::Terrain};
+use crate::{coin::CoinTouchedEvent, gravity::Gravity, knife::PlayerHitEvent, movement::{Body, Movement}, player_input::{InputDirection, MovementInputEvent}, points::Points, terrain::Terrain};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
 const PLAYER_SPEED: f32 = 500.0;
@@ -72,5 +74,11 @@ fn listen_movement_input(mut ev_movement: EventReader<MovementInputEvent>, mut m
 fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>) {
     for event in ev_player_hit.read() {
         println!("Ouch, we took {} damage.", event.damage);
+    }
+}
+
+fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, mut points: RefMut<Points>) {
+    for event in ev_coin_collected.read() {
+        points.value += event.value;
     }
 }

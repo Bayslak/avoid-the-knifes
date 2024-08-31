@@ -4,14 +4,18 @@ mod gravity;
 mod player_input;
 mod movement;
 mod knife;
-mod knife_timer;
+mod knife_spawner;
 mod points;
 mod ui;
+mod coin;
+mod coin_spawner;
 
 use bevy::prelude::*;
+use coin::CoinPlugin;
+use coin_spawner::CoinSpawnerPlugin;
 use gravity::GravityPlugin;
 use knife::KnifePlugin;
-use knife_timer::KnifeSpawnerPlugin;
+use knife_spawner::KnifeSpawnerPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use player_input::{InputPlugin, MovementInputEvent};
@@ -47,6 +51,7 @@ fn main() {
     .add_plugins(PointsPlugin)
     .add_plugins(UIPlugin)
     .add_plugins(PlayerPlugin)
+    .add_plugins((CoinPlugin, CoinSpawnerPlugin))
     .add_plugins((KnifePlugin, KnifeSpawnerPlugin))
     .insert_resource(Msaa::Off)
     .add_systems(Startup, setup_camera)

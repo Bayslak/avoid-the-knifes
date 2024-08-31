@@ -43,7 +43,7 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
             transform: Transform {
                 scale: Vec3::splat(4.0),
                 translation: spawn_position,
-            rotation: Quat::from_rotation_z(std::f32::consts::PI),
+                rotation: Quat::from_rotation_z(std::f32::consts::PI),
                 ..default()
             },
             ..default()
