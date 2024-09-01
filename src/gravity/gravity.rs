@@ -1,14 +1,16 @@
 use::bevy::prelude::*;
 
-use crate::{movement::movement::Movement, terrain::terrain::Terrain};
+use crate::{movement::movement::Movement, terrain::terrain::Terrain, GameState};
 
-pub struct GravityPlugin;
+pub struct GravityPlugin<GameState: States> {
+    pub state: GameState
+}
 
 const GRAVITY_SCALE: f32 = 9.8;
 
-impl Plugin for GravityPlugin {
+impl Plugin for GravityPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (apply_gravity, entity_is_touching_terrain));
+        app.add_systems(Update, (apply_gravity, entity_is_touching_terrain).run_if(in_state(self.state.clone())));
     }
 }
 

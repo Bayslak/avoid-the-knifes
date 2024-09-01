@@ -18,15 +18,28 @@ use player::player_input::InputPlugin;
 use player::player::PlayerPlugin;
 use points::points::PointsPlugin;
 use terrain::terrain::TerrainPlugin;
+use ui::main_menu::MainMenuPlugin;
 use ui::ui::UIPlugin;
 
 // Window
 const WW: f32 = 1200.0;
 const WH: f32 = 700.0;
 
-
 const SPRITE_W: usize = 16;
 const SPRITE_H: usize = 16;
+
+#[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
+enum GameState {
+    #[default]
+    Menu,
+    Game
+}
+
+#[derive(Component)]
+pub struct CleanupGameStateExit;
+
+#[derive(Component)]
+pub struct CleanupMenuStateExit;
 
 fn main() {
     App::new()
@@ -43,17 +56,26 @@ fn main() {
                         ..default()
                     }),
             )
-    .add_plugins((InputPlugin, MovementPlugin, TerrainPlugin, GravityPlugin))
+    .add_plugins((InputPlugin { state: GameState::Game }, MovementPlugin { state: GameState::Game }, TerrainPlugin { state: GameState::Game }, GravityPlugin { state: GameState::Game }))
     .add_plugins(PointsPlugin)
-    .add_plugins(UIPlugin)
-    .add_plugins(PlayerPlugin)
-    .add_plugins((CoinPlugin, CoinSpawnerPlugin))
-    .add_plugins((KnifePlugin, KnifeSpawnerPlugin))
+    .add_plugins((UIPlugin { state: GameState::Game }, MainMenuPlugin { state: GameState::Menu }))
+    .add_plugins(PlayerPlugin { state: GameState::Game })
+    .add_plugins((CoinPlugin { state: GameState::Game }, CoinSpawnerPlugin { state: GameState::Game }))
+    .add_plugins((KnifePlugin { state: GameState::Game }, KnifeSpawnerPlugin { state: GameState::Game }))
+    .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
+    .add_systems(OnExit(GameState::Game), cleanup_system::<CleanupGameStateExit>)
     .insert_resource(Msaa::Off)
+    .init_state::<GameState>()
     .add_systems(Startup, setup_camera)
     .run();
 }
 
 fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
+}
+
+fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
+    for entity in q.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
 }

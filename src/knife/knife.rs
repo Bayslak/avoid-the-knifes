@@ -4,13 +4,16 @@ use crate::gravity::gravity::Gravity;
 use crate::movement::movement::{Body, Movement};
 use crate::player::player::Player;
 use crate::points::points::Points;
+use crate::{CleanupGameStateExit, GameState};
 
-pub struct KnifePlugin;
+pub struct KnifePlugin<GameState: States> {
+    pub state: GameState
+}
 
-impl Plugin for KnifePlugin {
+impl Plugin for KnifePlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerHitEvent>();
-        app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player));
+        app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player).run_if(in_state(self.state.clone())));
     }
 }
 
@@ -60,7 +63,7 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
                 velocity: Vec2::ZERO
             }
         }
-    });
+    }).insert(CleanupGameStateExit);
 }
 
 fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>, mut points: ResMut<Points>) {
