@@ -1,11 +1,15 @@
 use::bevy::prelude::*;
 
-pub struct InputPlugin;
+use crate::GameState;
 
-impl Plugin for InputPlugin {
+pub struct InputPlugin<GameState: States> {
+    pub state: GameState
+}
+
+impl Plugin for InputPlugin<GameState> {
     fn build(&self, app: &mut App) {
        app.add_event::<MovementInputEvent>();
-       app.add_systems(Update, movement_input); 
+       app.add_systems(Update, movement_input.run_if(in_state(self.state.clone()))); 
     }
 }
 

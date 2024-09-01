@@ -1,13 +1,14 @@
 use::bevy::prelude::*;
 
-use crate::gravity::gravity::Gravity;
+use crate::{gravity::gravity::Gravity, GameState};
 
+pub struct MovementPlugin<GameState: States> {
+    pub state: GameState
+}
 
-pub struct MovementPlugin;
-
-impl Plugin for MovementPlugin {
+impl Plugin for MovementPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, move_entity);
+        app.add_systems(Update, move_entity.run_if(in_state(self.state.clone())));
     }
 }
 

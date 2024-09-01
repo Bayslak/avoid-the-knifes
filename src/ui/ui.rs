@@ -1,14 +1,16 @@
 use::bevy::prelude::*;
 
-use crate::points::points::Points;
+use crate::{points::points::Points, CleanupGameStateExit, GameState};
 
 
-pub struct UIPlugin;
+pub struct UIPlugin<GameState: States> {
+    pub state: GameState
+}
 
-impl Plugin for UIPlugin {
+impl Plugin for UIPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_game_ui);
-        app.add_systems(Update, update_points_ui);
+        app.add_systems(OnEnter(GameState::Game), spawn_game_ui.run_if(in_state(self.state.clone())));
+        app.add_systems(Update, update_points_ui.run_if(in_state(self.state.clone())));
     }
 }
 
@@ -35,7 +37,7 @@ fn spawn_game_ui(mut commands: Commands) {
             }),
             ..default()
         }, PointsText));
-    });
+    }).insert(CleanupGameStateExit);
 }
 
 fn update_points_ui(mut texts: Query<&mut Text, With<PointsText>>, points: Res<Points>) {

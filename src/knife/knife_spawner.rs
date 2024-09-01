@@ -2,16 +2,20 @@ use::bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::{random, Rng};
 
+use crate::GameState;
+
 use super::knife::spawn_knife;
 
-pub struct KnifeSpawnerPlugin;
+pub struct KnifeSpawnerPlugin<GameState: States> {
+    pub state: GameState
+}
 
 const KNIFE_SPAWN_TIMER: f32 = 0.2;
 
-impl Plugin for KnifeSpawnerPlugin {
+impl Plugin for KnifeSpawnerPlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.init_resource::<KnifeSpawnTimer>();
-        app.add_systems(Update, (tick_knife_spawn_timer, spawn_knife_over_time));
+        app.add_systems(Update, (tick_knife_spawn_timer, spawn_knife_over_time).run_if(in_state(self.state.clone())));
     }
 }
 
