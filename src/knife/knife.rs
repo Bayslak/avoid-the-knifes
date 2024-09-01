@@ -4,7 +4,7 @@ use crate::gravity::gravity::Gravity;
 use crate::movement::movement::{Body, Movement};
 use crate::player::player::Player;
 use crate::points::points::Points;
-use crate::GameState;
+use crate::{CleanupGameStateExit, GameState};
 
 pub struct KnifePlugin<GameState: States> {
     pub state: GameState
@@ -63,7 +63,7 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
                 velocity: Vec2::ZERO
             }
         }
-    });
+    }).insert(CleanupGameStateExit);
 }
 
 fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>, mut points: ResMut<Points>) {

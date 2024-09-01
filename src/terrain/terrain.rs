@@ -1,6 +1,6 @@
 use bevy::{prelude::*, scene::ron::de};
 
-use crate::GameState;
+use crate::{CleanupGameStateExit, GameState};
 
 pub struct TerrainPlugin<GameState: States> {
     pub state: GameState
@@ -10,7 +10,7 @@ const TERRAIN_SPRITE_PATH: &str = "sprites/terrain.png";
 
 impl Plugin for TerrainPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_terrain.run_if(in_state(self.state.clone())));
+        app.add_systems(OnEnter(GameState::Game), spawn_terrain.run_if(in_state(self.state.clone())));
     }
 }
 
@@ -35,5 +35,5 @@ fn spawn_terrain(mut commands: Commands, asset_server: Res<AssetServer>, window_
                 },
                 ..default()
             }, Terrain)
-        ).insert(Name::new("Terrain"));
+        ).insert((Name::new("Terrain"), CleanupGameStateExit));
 }
