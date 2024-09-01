@@ -11,7 +11,6 @@ As I continue to learn, I will be gradually adding new features to enhance the g
 - **Score System**: Earn points for every coin collected.
 - **Future Plans**: 
   - Animations for smoother and more engaging gameplay.
-  - A main menu to start, pause, and exit the game.
 
 ## Installation
 
