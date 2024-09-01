@@ -1,12 +1,16 @@
 use bevy::{prelude::*, scene::ron::de};
 
-pub struct TerrainPlugin;
+use crate::GameState;
+
+pub struct TerrainPlugin<GameState: States> {
+    pub state: GameState
+}
 
 const TERRAIN_SPRITE_PATH: &str = "sprites/terrain.png";
 
-impl Plugin for TerrainPlugin {
+impl Plugin for TerrainPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_terrain);
+        app.add_systems(Startup, spawn_terrain.run_if(in_state(self.state.clone())));
     }
 }
 

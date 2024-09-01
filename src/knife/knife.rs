@@ -4,13 +4,16 @@ use crate::gravity::gravity::Gravity;
 use crate::movement::movement::{Body, Movement};
 use crate::player::player::Player;
 use crate::points::points::Points;
+use crate::GameState;
 
-pub struct KnifePlugin;
+pub struct KnifePlugin<GameState: States> {
+    pub state: GameState
+}
 
-impl Plugin for KnifePlugin {
+impl Plugin for KnifePlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerHitEvent>();
-        app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player));
+        app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player).run_if(in_state(self.state.clone())));
     }
 }
 

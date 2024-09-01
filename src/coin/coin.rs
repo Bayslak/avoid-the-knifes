@@ -1,14 +1,16 @@
 use::bevy::prelude::*;
 
-use crate::{gravity::gravity::Gravity, movement::movement::{Body, Movement}, player::player::Player};
+use crate::{gravity::gravity::Gravity, movement::movement::{Body, Movement}, player::player::Player, GameState};
 
 
-pub struct CoinPlugin;
+pub struct CoinPlugin<GameState: States> {
+    pub state: GameState
+}
 
-impl Plugin for CoinPlugin {
+impl Plugin for CoinPlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_event::<CoinTouchedEvent>();
-        app.add_systems(Update, check_if_touch_player);
+        app.add_systems(Update, check_if_touch_player.run_if(in_state(self.state.clone())));
     }
 }
 

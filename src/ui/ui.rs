@@ -1,14 +1,16 @@
 use::bevy::prelude::*;
 
-use crate::points::points::Points;
+use crate::{points::points::Points, GameState};
 
 
-pub struct UIPlugin;
+pub struct UIPlugin<GameState: States> {
+    pub state: GameState
+}
 
-impl Plugin for UIPlugin {
+impl Plugin for UIPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_game_ui);
-        app.add_systems(Update, update_points_ui);
+        app.add_systems(Startup, spawn_game_ui.run_if(in_state(self.state.clone())));
+        app.add_systems(Update, update_points_ui.run_if(in_state(self.state.clone())));
     }
 }
 

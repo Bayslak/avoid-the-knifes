@@ -7,18 +7,23 @@ use crate::knife::knife::PlayerHitEvent;
 use crate::movement::movement::{Body, Movement};
 use crate::coin::coin::CoinTouchedEvent;
 use crate::points::points::Points;
+use crate::GameState;
 
 use super::player_input::{InputDirection, MovementInputEvent};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
 const PLAYER_SPEED: f32 = 500.0;
 
-pub struct PlayerPlugin;
+pub struct PlayerPlugin<GameState: States> {
+    pub state: GameState,
+}
 
-impl Plugin for PlayerPlugin {
+impl Plugin for PlayerPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player);
-        app.add_systems(Update, (listen_movement_input, listen_for_knives, listen_for_coins));
+        app.add_systems(Startup, spawn_player
+            .run_if(in_state(self.state.clone())));
+        app.add_systems(Update, (listen_movement_input, listen_for_knives, listen_for_coins)
+            .run_if(in_state(self.state.clone())));
     }
 }
 

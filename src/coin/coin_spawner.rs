@@ -2,16 +2,20 @@ use::bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::Rng;
 
+use crate::GameState;
+
 use super::coin::spawn_coin;
 
-pub struct CoinSpawnerPlugin;
+pub struct CoinSpawnerPlugin<GameState: States> {
+    pub state: GameState
+}
 
 const COIN_SPAWN_TIMER: f32 = 3.0;
 
-impl Plugin for CoinSpawnerPlugin {
+impl Plugin for CoinSpawnerPlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.init_resource::<CoinSpawnTimer>();
-        app.add_systems(Update, (tick_coin_spawn_timer, spawn_coin_over_time));
+        app.add_systems(Update, (tick_coin_spawn_timer, spawn_coin_over_time).run_if(in_state(self.state.clone())));
     }
 }
 
