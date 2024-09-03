@@ -22,22 +22,17 @@ To play or contribute to *Avoid the Knives*, you'll need to have Rust and Cargo 
    git clone https://github.com/bayslak/avoid-the-knifes.git
    cd avoid-the-knifes
    ```
-
-2. **Build the project**:
+   
+2. **Run the game**:
    ```bash
-   cargo build --release
-   ```
-
-3. **Run the game**:
-   ```bash
-   cargo run --release
+   cargo run
    ```
 
 ## Usage
 
 Once the game is running, use the following controls to play:
 
-- **Movement**: Use the `A` and `D` keys to move left and right.
+- **Movement**: Use the `A` and `D` or `<-` and `->` keys to move left and right.
 - **Objective**: Avoid falling knives and collect coins to increase your score.
 
 ## Contributing
