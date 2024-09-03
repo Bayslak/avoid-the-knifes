@@ -25,7 +25,8 @@ fn spawn_game_ui(mut commands: Commands) {
         style: Style {
                 width: Val::Percent(100.0),
                 height: Val::Percent(10.0),
-                align_items: AlignItems::Center,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::FlexStart,
                 padding: UiRect::all(Val::Px(10.0)),
                 ..default()
             },
@@ -34,6 +35,10 @@ fn spawn_game_ui(mut commands: Commands) {
     ))
     .with_children(|commands| {
         commands.spawn((TextBundle {
+            style: Style {
+                margin: UiRect::bottom(Val::Px(5.0)),
+                ..default()
+            },
             text: Text::from_section("Points", TextStyle {
                 font_size: 32.0,
                 ..default()

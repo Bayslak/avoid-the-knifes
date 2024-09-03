@@ -19,7 +19,7 @@ use knife::knife_spawner::KnifeSpawnerPlugin;
 use movement::movement::MovementPlugin;
 use player::player_input::InputPlugin;
 use player::player::{PlayerAnimationAssets, PlayerPlugin};
-use points::points::PointsPlugin;
+use points::points::{Points, PointsPlugin};
 use terrain::terrain::TerrainPlugin;
 use ui::main_menu::MainMenuPlugin;
 use ui::ui::UIPlugin;
@@ -87,7 +87,7 @@ fn main() {
         .load_collection::<PlayerAnimationAssets>()
     )
     .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
-    .add_systems(OnExit(GameState::Game), cleanup_system::<CleanupGameStateExit>)
+    .add_systems(OnExit(GameState::Game), (cleanup_system::<CleanupGameStateExit>, reset))
     .add_systems(Update, level_timer_update.run_if(in_state(GameState::Game)))
     .add_event::<LevelUpEvent>()
     .insert_resource(Msaa::Off)
@@ -108,9 +108,17 @@ fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>
     }
 }
 
-fn level_timer_update(mut leveled_up: EventWriter<LevelUpEvent>, level_up_timer: Res<LevelIncreaseTimer>, mut level: ResMut<Level>) {
+fn level_timer_update(time: Res<Time>, mut leveled_up: EventWriter<LevelUpEvent>, mut level_up_timer: ResMut<LevelIncreaseTimer>, mut level: ResMut<Level>) {
+    level_up_timer.0.tick(time.delta());
+    
     if level_up_timer.0.just_finished() {
         leveled_up.send(LevelUpEvent);
         level.value += 1;
     }
+}
+
+fn reset(mut level: ResMut<Level>, mut points: ResMut<Points>, mut level_timer: ResMut<LevelIncreaseTimer>) {
+    level.value = 0;
+    points.value = 0;
+    level_timer.0 = Timer::from_seconds(LEVEL_UP_TIMER, TimerMode::Repeating);
 }
