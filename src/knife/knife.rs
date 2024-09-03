@@ -1,3 +1,4 @@
+use bevy::pbr::deferred::DEFAULT_PBR_DEFERRED_LIGHTING_PASS_ID;
 use::bevy::prelude::*;
 
 use crate::gravity::gravity::Gravity;
@@ -60,7 +61,8 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
             },
             body: Body {
                 mass: 50.0,
-                velocity: Vec2::ZERO
+                velocity: Vec2::ZERO,
+                ..default()
             }
         }
     }).insert(CleanupGameStateExit);

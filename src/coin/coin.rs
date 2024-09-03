@@ -69,10 +69,7 @@ pub fn spawn_coin(mut commands: Commands, animations: Res<CoinAnimationAssets>, 
             gravity: Gravity {
                 is_touching_terrain: false
             },
-            body: Body {
-                mass: 100.0,
-                velocity: Vec2::ZERO
-            }
+            body: Body::default()
         },
         atlas: TextureAtlas::from(animations.layout.clone()),
         animation_timer: AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating))

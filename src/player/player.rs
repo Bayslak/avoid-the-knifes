@@ -83,7 +83,8 @@ fn spawn_player(mut commands: Commands, animations: Res<PlayerAnimationAssets>) 
             },
             body: Body {
                 mass: 100.0,
-                velocity: Vec2::ZERO
+                velocity: Vec2::ZERO,
+                ..default()
             }
         },
         atlas: TextureAtlas::from(animations.layout.clone()),
