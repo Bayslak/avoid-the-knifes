@@ -7,6 +7,7 @@ mod points;
 mod ui;
 mod coin;
 
+use bevy::ecs::query;
 use bevy::prelude::*;
 use bevy_asset_loader::loading_state::config::ConfigureLoadingState;
 use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
@@ -27,9 +28,6 @@ use ui::ui::UIPlugin;
 const WW: f32 = 1200.0;
 const WH: f32 = 700.0;
 
-const SPRITE_W: usize = 16;
-const SPRITE_H: usize = 16;
-
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum GameState {
     #[default]
@@ -43,6 +41,24 @@ pub struct CleanupGameStateExit;
 
 #[derive(Component)]
 pub struct CleanupMenuStateExit;
+
+#[derive(Resource)]
+pub struct Level {
+    pub value: i32
+}
+
+const LEVEL_UP_TIMER: f32 = 5.0;
+#[derive(Resource)]
+pub struct LevelIncreaseTimer(Timer);
+
+impl Default for LevelIncreaseTimer {
+    fn default() -> Self {
+        Self(Timer::from_seconds(LEVEL_UP_TIMER, TimerMode::Repeating))
+    }
+}
+
+#[derive(Event)]
+pub struct LevelUpEvent;
 
 fn main() {
     App::new()
@@ -72,7 +88,11 @@ fn main() {
     )
     .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
     .add_systems(OnExit(GameState::Game), cleanup_system::<CleanupGameStateExit>)
+    .add_systems(Update, level_timer_update.run_if(in_state(GameState::Game)))
+    .add_event::<LevelUpEvent>()
     .insert_resource(Msaa::Off)
+    .insert_resource(Level { value: 0 })
+    .init_resource::<LevelIncreaseTimer>()
     .init_state::<GameState>()
     .add_systems(Startup, setup_camera)
     .run();
@@ -85,5 +105,12 @@ fn setup_camera(mut commands: Commands) {
 fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
     for entity in q.iter() {
         commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn level_timer_update(mut leveled_up: EventWriter<LevelUpEvent>, level_up_timer: Res<LevelIncreaseTimer>, mut level: ResMut<Level>) {
+    if level_up_timer.0.just_finished() {
+        leveled_up.send(LevelUpEvent);
+        level.value += 1;
     }
 }
