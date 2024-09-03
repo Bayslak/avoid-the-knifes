@@ -17,7 +17,7 @@ use knife::knife::KnifePlugin;
 use knife::knife_spawner::KnifeSpawnerPlugin;
 use movement::movement::MovementPlugin;
 use player::player_input::InputPlugin;
-use player::player::PlayerPlugin;
+use player::player::{PlayerAnimationAssets, PlayerPlugin};
 use points::points::PointsPlugin;
 use terrain::terrain::TerrainPlugin;
 use ui::main_menu::MainMenuPlugin;
@@ -68,6 +68,7 @@ fn main() {
     .add_loading_state(
         LoadingState::new(GameState::AssetLoading).continue_to_state(GameState::Menu)
         .load_collection::<CoinAnimationAssets>()
+        .load_collection::<PlayerAnimationAssets>()
     )
     .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
     .add_systems(OnExit(GameState::Game), cleanup_system::<CleanupGameStateExit>)

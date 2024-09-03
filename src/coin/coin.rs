@@ -98,7 +98,7 @@ fn check_if_touch_player(mut commands: Commands, mut ev_coin_collected: EventWri
     }
 }
 
-fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut TextureAtlas)>) {
+fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut TextureAtlas), With<Coin>>) {
     for (mut timer, mut sprite) in &mut query {
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
