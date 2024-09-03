@@ -10,7 +10,8 @@ As I continue to learn, I will be gradually adding new features to enhance the g
 - **Basic Gameplay**: Move the player to avoid falling knives and collect coins.
 - **Score System**: Earn points for every coin collected.
 - **Future Plans**: 
-  - Animations for smoother and more engaging gameplay.
+  - No ideas at the moment!
+  - **WAITING SUGGESTIONS OR EPIPHANIES**
 
 ## Installation
 
