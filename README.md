@@ -3,7 +3,7 @@
 
 **Avoid the Knifes** is an open-source project written in Rust using the [Bevy](https://bevyengine.org/) game engine. This project is a playground to help me learn more about Rust and Bevy while creating a fun and interactive game. The primary objective of the game is to avoid falling knives while collecting coins to increase your score. 
 
-As I continue to learn, I will be gradually adding new features to enhance the game. The next planned features include animations and a main menu.
+As I continue to learn, I will be gradually adding new features to enhance the game.
 
 ## Features
 
