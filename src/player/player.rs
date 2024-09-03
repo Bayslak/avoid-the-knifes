@@ -1,6 +1,7 @@
 use std::cell::RefMut;
 
 use bevy::prelude::*;
+use bevy_asset_loader::asset_collection::AssetCollection;
 
 use crate::gravity::gravity::Gravity;
 use crate::knife::knife::PlayerHitEvent;
@@ -12,6 +13,8 @@ use crate::{CleanupGameStateExit, GameState};
 use super::player_input::{InputDirection, MovementInputEvent};
 
 const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
+const PLAYER_IDLE_PATH: &str = "sprites/skeleton_idle_animaton.png";
+const PLAYER_MOVE_PATH: &str = "sprites/skeleton_move_animaton.png";
 const PLAYER_SPEED: f32 = 500.0;
 
 pub struct PlayerPlugin<GameState: States> {
@@ -22,29 +25,55 @@ impl Plugin for PlayerPlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Game), spawn_player
             .run_if(in_state(self.state.clone())));
-        app.add_systems(Update, (listen_movement_input, listen_for_knives, listen_for_coins)
+        app.add_systems(Update, (animate_sprite, basic_state_machine, listen_movement_input, listen_for_knives, listen_for_coins)
             .run_if(in_state(self.state.clone())));
     }
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct PlayerAnimationAssets {
+    #[asset(texture_atlas_layout(tile_size_x = 16, tile_size_y = 16, columns = 4, rows = 1,))]
+    layout: Handle<TextureAtlasLayout>,
+
+    #[asset(image(sample = nearest))]
+    #[asset(path = "sprites/skeleton_idle_animation.png")]
+    idle: Handle<Image>,
+
+    #[asset(image(sample = nearest))]
+    #[asset(path = "sprites/skeleton_move_animation.png")]
+    walking: Handle<Image>
 }
 
 #[derive(Bundle)]
 struct PlayerBundle {
     player: Player,
+    movement: Movement,
     sprite: SpriteBundle,
-    movement: Movement
+    atlas: TextureAtlas,
+    animation_timer: AnimationTimer
 }
+
+#[derive(Component)]
+struct AnimationTimer(Timer);
 
 #[derive(Component)]
 pub struct Player {
     pub speed: f32,
+    pub state: PlayerState
 }
 
-fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
+#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash, States)]
+pub enum PlayerState {
+    Idle,
+    Walking 
+}
+
+fn spawn_player(mut commands: Commands, animations: Res<PlayerAnimationAssets>) {
     
     commands.spawn(PlayerBundle {
-        player: Player { speed: PLAYER_SPEED },
+        player: Player { speed: PLAYER_SPEED, state: PlayerState::Idle },
         sprite: SpriteBundle {
-            texture: asset_server.load(PLAYER_SPRITE_PATH),
+            texture: animations.idle.clone(),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(16.0, 16.0)),
                 ..default()
@@ -61,9 +90,12 @@ fn spawn_player(mut commands: Commands, asset_server: Res<AssetServer>) {
             },
             body: Body {
                 mass: 100.0,
-                velocity: Vec2::ZERO
+                velocity: Vec2::ZERO,
+                ..default()
             }
-        }
+        },
+        atlas: TextureAtlas::from(animations.layout.clone()),
+        animation_timer: AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating))
     })
     .insert((Name::new("Player"), CleanupGameStateExit));
 }
@@ -90,11 +122,36 @@ fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>, mut game_st
     }
 }
 
-fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, points: ResMut<Points>) {
-    
-    let mut points = points.value;
-    
+fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, mut points: ResMut<Points>) {
     for event in ev_coin_collected.read() {
-        points += event.value;
+        points.value += event.value;
+    }
+}
+
+fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut TextureAtlas), With<Player>>) {
+    for (mut timer, mut sprite) in &mut query  {
+        timer.0.tick(time.delta());
+        if timer.0.just_finished() {
+            sprite.index = (sprite.index + 1) % 4;
+        }
+    }
+}
+
+fn basic_state_machine(mut query: Query<(&mut Player, &Movement, &mut AnimationTimer, &mut Handle<Image>, &mut TextureAtlas)>, animations: Res<PlayerAnimationAssets>) {
+    for (mut player, movement, mut timer, mut sprite, mut atlas) in &mut query {
+        
+        if movement.body.velocity.x == 0.0 && player.state != PlayerState::Idle {
+            player.state = PlayerState::Idle;
+            *sprite = animations.idle.clone();
+            *timer = AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating));
+            *atlas = animations.layout.clone().into();
+        }
+    
+        if movement.body.velocity.x != 0.0 && player.state != PlayerState::Walking {
+            player.state = PlayerState::Walking;
+            *sprite = animations.walking.clone();
+            *timer = AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating));
+            *atlas = animations.layout.clone().into();
+        }
     }
 }

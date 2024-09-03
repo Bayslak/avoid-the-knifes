@@ -8,14 +8,16 @@ mod ui;
 mod coin;
 
 use bevy::prelude::*;
-use coin::coin::CoinPlugin;
+use bevy_asset_loader::loading_state::config::ConfigureLoadingState;
+use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
+use coin::coin::{CoinAnimationAssets, CoinPlugin};
 use coin::coin_spawner::CoinSpawnerPlugin;
 use gravity::gravity::GravityPlugin;
 use knife::knife::KnifePlugin;
 use knife::knife_spawner::KnifeSpawnerPlugin;
 use movement::movement::MovementPlugin;
 use player::player_input::InputPlugin;
-use player::player::PlayerPlugin;
+use player::player::{PlayerAnimationAssets, PlayerPlugin};
 use points::points::PointsPlugin;
 use terrain::terrain::TerrainPlugin;
 use ui::main_menu::MainMenuPlugin;
@@ -31,6 +33,7 @@ const SPRITE_H: usize = 16;
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum GameState {
     #[default]
+    AssetLoading,
     Menu,
     Game
 }
@@ -62,6 +65,11 @@ fn main() {
     .add_plugins(PlayerPlugin { state: GameState::Game })
     .add_plugins((CoinPlugin { state: GameState::Game }, CoinSpawnerPlugin { state: GameState::Game }))
     .add_plugins((KnifePlugin { state: GameState::Game }, KnifeSpawnerPlugin { state: GameState::Game }))
+    .add_loading_state(
+        LoadingState::new(GameState::AssetLoading).continue_to_state(GameState::Menu)
+        .load_collection::<CoinAnimationAssets>()
+        .load_collection::<PlayerAnimationAssets>()
+    )
     .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
     .add_systems(OnExit(GameState::Game), cleanup_system::<CleanupGameStateExit>)
     .insert_resource(Msaa::Off)
