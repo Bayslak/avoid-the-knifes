@@ -93,11 +93,8 @@ fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>, mut game_st
     }
 }
 
-fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, points: ResMut<Points>) {
-    
-    let mut points = points.value;
-    
+fn listen_for_coins(mut ev_coin_collected: EventReader<CoinTouchedEvent>, mut points: ResMut<Points>) {
     for event in ev_coin_collected.read() {
-        points += event.value;
+        points.value += event.value;
     }
 }

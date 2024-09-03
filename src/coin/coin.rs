@@ -35,7 +35,7 @@ pub struct CoinTouchedEvent {
 
 pub fn spawn_coin(mut commands: Commands, asset_server: Res<AssetServer>, spawn_position: Vec3) {
     commands.spawn(CoinBundle {
-        coin: Coin { value: 5 },
+        coin: Coin { value: 10 },
         sprite: SpriteBundle {
             texture: asset_server.load(COIN_SPRITE_PATH),
             sprite: Sprite {
