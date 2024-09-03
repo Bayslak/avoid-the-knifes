@@ -25,7 +25,7 @@ impl Plugin for PlayerPlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::Game), spawn_player
             .run_if(in_state(self.state.clone())));
-        app.add_systems(Update, (animate_sprite, listen_movement_input, listen_for_knives, listen_for_coins)
+        app.add_systems(Update, (animate_sprite, basic_state_machine, listen_movement_input, listen_for_knives, listen_for_coins)
             .run_if(in_state(self.state.clone())));
     }
 }
@@ -59,12 +59,19 @@ struct AnimationTimer(Timer);
 #[derive(Component)]
 pub struct Player {
     pub speed: f32,
+    pub state: PlayerState
+}
+
+#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash, States)]
+pub enum PlayerState {
+    Idle,
+    Walking 
 }
 
 fn spawn_player(mut commands: Commands, animations: Res<PlayerAnimationAssets>) {
     
     commands.spawn(PlayerBundle {
-        player: Player { speed: PLAYER_SPEED },
+        player: Player { speed: PLAYER_SPEED, state: PlayerState::Idle },
         sprite: SpriteBundle {
             texture: animations.idle.clone(),
             sprite: Sprite {
@@ -126,6 +133,25 @@ fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut T
         timer.0.tick(time.delta());
         if timer.0.just_finished() {
             sprite.index = (sprite.index + 1) % 4;
+        }
+    }
+}
+
+fn basic_state_machine(mut query: Query<(&mut Player, &Movement, &mut AnimationTimer, &mut Handle<Image>, &mut TextureAtlas)>, animations: Res<PlayerAnimationAssets>) {
+    for (mut player, movement, mut timer, mut sprite, mut atlas) in &mut query {
+        
+        if movement.body.velocity.x == 0.0 && player.state != PlayerState::Idle {
+            player.state = PlayerState::Idle;
+            *sprite = animations.idle.clone();
+            *timer = AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating));
+            *atlas = animations.layout.clone().into();
+        }
+    
+        if movement.body.velocity.x != 0.0 && player.state != PlayerState::Walking {
+            player.state = PlayerState::Walking;
+            *sprite = animations.walking.clone();
+            *timer = AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating));
+            *atlas = animations.layout.clone().into();
         }
     }
 }
