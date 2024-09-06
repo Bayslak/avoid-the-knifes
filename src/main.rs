@@ -89,7 +89,6 @@ fn main() {
     .add_loading_state(
         LoadingState::new(GameState::AssetLoading).continue_to_state(GameState::Menu)
         .load_collection::<BackgroundAudios>()
-        .load_collection::<CoinAnimationAssets>()
         .load_collection::<CoinAssets>()
         .load_collection::<PlayerAnimationAssets>().load_collection::<PlayerAudioSources>()
         .load_collection::<KnifeAudios>()
