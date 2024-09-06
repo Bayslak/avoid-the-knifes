@@ -14,7 +14,7 @@ use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 use bevy_kira_audio::AudioSource as KiraAudioSource;
-use coin::coin::{CoinAnimationAssets, CoinPlugin};
+use coin::coin::{CoinAssets, CoinPlugin};
 use coin::coin_spawner::CoinSpawnerPlugin;
 use gravity::gravity::GravityPlugin;
 use knife::knife::{KnifeAudios, KnifePlugin};
@@ -90,6 +90,7 @@ fn main() {
         LoadingState::new(GameState::AssetLoading).continue_to_state(GameState::Menu)
         .load_collection::<BackgroundAudios>()
         .load_collection::<CoinAnimationAssets>()
+        .load_collection::<CoinAssets>()
         .load_collection::<PlayerAnimationAssets>().load_collection::<PlayerAudioSources>()
         .load_collection::<KnifeAudios>()
     )
@@ -143,6 +144,6 @@ fn play_background_music(background_audios: Res<BackgroundAudios>, background_ch
     if !background_channel.is_playing_sound() {
         background_channel.play(background_audios.background.clone())
             .looped()
-            .with_volume(0.2);
+            .with_volume(0.1);
     };
 }

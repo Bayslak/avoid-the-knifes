@@ -83,7 +83,7 @@ fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, 
 knife_audios: Res<KnifeAudios>, knife_channel: Res<AudioChannel<KnifeChannel>>) {
     for (knife, &ref movement) in knife_query.iter() {
         if movement.gravity.is_touching_terrain {
-            knife_channel.play(knife_audios.hit_ground.clone()).with_volume(0.5);
+            knife_channel.play(knife_audios.hit_ground.clone()).with_volume(0.2);
             commands.entity(knife).despawn();
             points.value += 1;
         }
