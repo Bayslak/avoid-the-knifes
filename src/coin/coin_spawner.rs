@@ -4,7 +4,7 @@ use rand::Rng;
 
 use crate::GameState;
 
-use super::coin::{spawn_coin, CoinAnimationAssets};
+use super::coin::{spawn_coin, CoinAssets};
 
 pub struct CoinSpawnerPlugin<GameState: States> {
     pub state: GameState
@@ -34,7 +34,7 @@ fn tick_coin_spawn_timer(mut coin_spawn_timer: ResMut<CoinSpawnTimer>, time: Res
     coin_spawn_timer.timer.tick(time.delta());
 }
 
-fn spawn_coin_over_time(commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>, coin_spawn_timer: Res<CoinSpawnTimer>, asset: Res<CoinAnimationAssets>) {
+fn spawn_coin_over_time(commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>, coin_spawn_timer: Res<CoinSpawnTimer>, asset: Res<CoinAssets>) {
     if coin_spawn_timer.timer.finished() {
         let window = window_query.get_single().unwrap();
 

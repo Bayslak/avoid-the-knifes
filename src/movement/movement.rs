@@ -1,4 +1,3 @@
-use bevy::math::VectorSpace;
 use::bevy::prelude::*;
 
 use crate::{gravity::gravity::Gravity, GameState};
