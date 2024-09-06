@@ -1,5 +1,6 @@
-use bevy::pbr::deferred::DEFAULT_PBR_DEFERRED_LIGHTING_PASS_ID;
 use::bevy::prelude::*;
+use bevy_asset_loader::asset_collection::AssetCollection;
+use bevy_kira_audio::{AudioApp, AudioChannel, AudioControl, AudioSource as KiraAudioSource};
 
 use crate::gravity::gravity::Gravity;
 use crate::movement::movement::{Body, Movement};
@@ -15,6 +16,7 @@ impl Plugin for KnifePlugin<GameState> {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerHitEvent>();
         app.add_systems(Update, (despawn_on_terrain_touch, check_if_touch_player).run_if(in_state(self.state.clone())));
+        app.add_audio_channel::<KnifeChannel>();
     }
 }
 
@@ -25,6 +27,15 @@ struct KnifeBundle {
     knife: Knife,
     sprite: SpriteBundle,
     movement: Movement
+}
+
+#[derive(Resource)]
+pub struct KnifeChannel;
+
+#[derive(AssetCollection, Resource)]
+pub struct KnifeAudios {
+    #[asset(path = "audio/knife_hits_wood.mp3")]
+    hit_ground: Handle<KiraAudioSource>
 }
 
 #[derive(Component)]
@@ -68,9 +79,11 @@ pub fn spawn_knife(mut commands: Commands, asset_server: Res<AssetServer>, spawn
     }).insert(CleanupGameStateExit);
 }
 
-fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>, mut points: ResMut<Points>) {
+fn despawn_on_terrain_touch(mut commands: Commands, knife_query: Query<(Entity, &Movement), With<Knife>>, mut points: ResMut<Points>,
+knife_audios: Res<KnifeAudios>, knife_channel: Res<AudioChannel<KnifeChannel>>) {
     for (knife, &ref movement) in knife_query.iter() {
         if movement.gravity.is_touching_terrain {
+            knife_channel.play(knife_audios.hit_ground.clone()).with_volume(0.5);
             commands.entity(knife).despawn();
             points.value += 1;
         }

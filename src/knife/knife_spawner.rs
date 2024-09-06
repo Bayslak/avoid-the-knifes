@@ -1,10 +1,10 @@
 use::bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use rand::{random, Rng};
+use rand::Rng;
 
 use crate::{GameState, LevelUpEvent};
 
-use super::knife::{self, spawn_knife};
+use super::knife::spawn_knife;
 
 pub struct KnifeSpawnerPlugin<GameState: States> {
     pub state: GameState

@@ -1,7 +1,7 @@
-use std::cell::RefMut;
-
 use bevy::prelude::*;
 use bevy_asset_loader::asset_collection::AssetCollection;
+use bevy_kira_audio::prelude::*;
+use bevy_kira_audio::AudioSource as KiraAudioSource;
 
 use crate::gravity::gravity::Gravity;
 use crate::knife::knife::PlayerHitEvent;
@@ -12,9 +12,6 @@ use crate::{CleanupGameStateExit, GameState};
 
 use super::player_input::{InputDirection, MovementInputEvent};
 
-const PLAYER_SPRITE_PATH: &str = "sprites/skeleton.png";
-const PLAYER_IDLE_PATH: &str = "sprites/skeleton_idle_animaton.png";
-const PLAYER_MOVE_PATH: &str = "sprites/skeleton_move_animaton.png";
 const PLAYER_SPEED: f32 = 500.0;
 
 pub struct PlayerPlugin<GameState: States> {
@@ -23,10 +20,12 @@ pub struct PlayerPlugin<GameState: States> {
 
 impl Plugin for PlayerPlugin<GameState> {
     fn build(&self, app: &mut App) {
+        app.add_audio_channel::<PlayerAudioChannel>();
         app.add_systems(OnEnter(GameState::Game), spawn_player
             .run_if(in_state(self.state.clone())));
         app.add_systems(Update, (animate_sprite, basic_state_machine, listen_movement_input, listen_for_knives, listen_for_coins)
             .run_if(in_state(self.state.clone())));
+        app.add_systems(Update, play_footsteps.run_if(in_state(self.state.clone())));
     }
 }
 
@@ -43,6 +42,15 @@ pub struct PlayerAnimationAssets {
     #[asset(path = "sprites/skeleton_move_animation.png")]
     walking: Handle<Image>
 }
+
+#[derive(AssetCollection, Resource)]
+pub struct PlayerAudioSources {
+    #[asset(path = "audio/footsteps.mp3")]
+    footsteps: Handle<KiraAudioSource>
+}
+
+#[derive(Resource)]
+pub struct PlayerAudioChannel;
 
 #[derive(Bundle)]
 struct PlayerBundle {
@@ -107,8 +115,6 @@ fn listen_movement_input(mut ev_movement: EventReader<MovementInputEvent>, mut m
             match input_direction.direction {
                 InputDirection::Left => movement.body.velocity.x = -player.speed,
                 InputDirection::Right => movement.body.velocity.x = player.speed,
-                InputDirection::Up => todo!(),
-                InputDirection::Down => todo!(),
                 InputDirection::None => movement.body.velocity.x = 0.0,
             }
         }
@@ -134,6 +140,18 @@ fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut T
         if timer.0.just_finished() {
             sprite.index = (sprite.index + 1) % 4;
         }
+    }
+}
+
+fn play_footsteps(audios: Res<PlayerAudioSources>, player_channel: Res<AudioChannel<PlayerAudioChannel>>, player_query: Query<&Player>) {
+    let player = player_query.get_single().unwrap();
+
+    if player.state == PlayerState::Walking && !player_channel.is_playing_sound() {
+        player_channel.play(audios.footsteps.clone()).looped().with_volume(0.5);
+    }
+
+    if player.state != PlayerState::Walking && player_channel.is_playing_sound() {
+        player_channel.stop();
     }
 }
 

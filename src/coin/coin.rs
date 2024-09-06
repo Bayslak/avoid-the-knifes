@@ -3,7 +3,6 @@ use bevy_asset_loader::prelude::*;
 
 use crate::{gravity::gravity::Gravity, movement::movement::{Body, Movement}, player::player::Player, CleanupGameStateExit, GameState};
 
-
 pub struct CoinPlugin<GameState: States> {
     pub state: GameState
 }
@@ -14,8 +13,6 @@ impl Plugin for CoinPlugin<GameState> {
         app.add_systems(Update, (check_if_touch_player, animate_sprite).run_if(in_state(self.state.clone())));
     }
 }
-
-const COIN_SPRITE_PATH: &str = "sprites/coin.png";
 
 #[derive(AssetCollection, Resource)]
 pub struct CoinAnimationAssets {

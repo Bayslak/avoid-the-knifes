@@ -16,8 +16,6 @@ impl Plugin for InputPlugin<GameState> {
 pub enum InputDirection {
     Left,
     Right,
-    Up,
-    Down,
     None
 }
 

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{main, CleanupMenuStateExit, GameState};
+use crate::{CleanupMenuStateExit, GameState};
 
 pub struct MainMenuPlugin<GameState: States> {
     pub state: GameState
