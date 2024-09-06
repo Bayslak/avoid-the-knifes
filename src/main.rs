@@ -14,14 +14,14 @@ use bevy_asset_loader::loading_state::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::prelude::*;
 use bevy_kira_audio::AudioPlugin;
 use bevy_kira_audio::AudioSource as KiraAudioSource;
-use coin::coin::{CoinAssets, CoinPlugin};
+use coin::coin::{CoinAssets, CoinChannel, CoinPlugin};
 use coin::coin_spawner::CoinSpawnerPlugin;
 use gravity::gravity::GravityPlugin;
-use knife::knife::{KnifeAudios, KnifePlugin};
+use knife::knife::{KnifeAudios, KnifeChannel, KnifePlugin};
 use knife::knife_spawner::KnifeSpawnerPlugin;
 use movement::movement::MovementPlugin;
 use player::player_input::InputPlugin;
-use player::player::{PlayerAnimationAssets, PlayerAudioSources, PlayerPlugin};
+use player::player::{PlayerAnimationAssets, PlayerChannel, PlayerAudioSources, PlayerPlugin};
 use points::points::{Points, PointsPlugin};
 use terrain::terrain::TerrainPlugin;
 use ui::main_menu::MainMenuPlugin;
@@ -94,7 +94,7 @@ fn main() {
         .load_collection::<KnifeAudios>()
     )
     .add_systems(OnExit(GameState::Menu), cleanup_system::<CleanupMenuStateExit>)
-    .add_systems(OnExit(GameState::Game), (cleanup_system::<CleanupGameStateExit>, reset))
+    .add_systems(OnExit(GameState::Game), (cleanup_system::<CleanupGameStateExit>, reset, stop_channels))
     .add_systems(Update, (level_timer_update, play_background_music).run_if(in_state(GameState::Game)))
     .add_event::<LevelUpEvent>()
     .insert_resource(Msaa::Off)
@@ -145,4 +145,16 @@ fn play_background_music(background_audios: Res<BackgroundAudios>, background_ch
             .looped()
             .with_volume(0.1);
     };
+}
+
+fn stop_channels(
+    background_channel: Res<AudioChannel<BackgroundChannel>>,
+    player_channel: Res<AudioChannel<PlayerChannel>>,
+    knife_channel: Res<AudioChannel<KnifeChannel>>,
+    coin_channel: Res<AudioChannel<CoinChannel>>) 
+{
+    background_channel.stop();
+    player_channel.stop();
+    knife_channel.stop();
+    coin_channel.stop();
 }

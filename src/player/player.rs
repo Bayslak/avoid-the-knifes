@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
 use bevy_asset_loader::asset_collection::AssetCollection;
 use bevy_kira_audio::prelude::*;
 use bevy_kira_audio::AudioSource as KiraAudioSource;
@@ -20,10 +21,10 @@ pub struct PlayerPlugin<GameState: States> {
 
 impl Plugin for PlayerPlugin<GameState> {
     fn build(&self, app: &mut App) {
-        app.add_audio_channel::<PlayerAudioChannel>();
+        app.add_audio_channel::<PlayerChannel>();
         app.add_systems(OnEnter(GameState::Game), spawn_player
             .run_if(in_state(self.state.clone())));
-        app.add_systems(Update, (animate_sprite, basic_state_machine, listen_movement_input, listen_for_knives, listen_for_coins)
+        app.add_systems(Update, (animate_sprite, basic_state_machine, listen_movement_input, keep_player_in_bounds, listen_for_knives, listen_for_coins)
             .run_if(in_state(self.state.clone())));
         app.add_systems(Update, play_footsteps.run_if(in_state(self.state.clone())));
     }
@@ -50,7 +51,7 @@ pub struct PlayerAudioSources {
 }
 
 #[derive(Resource)]
-pub struct PlayerAudioChannel;
+pub struct PlayerChannel;
 
 #[derive(Bundle)]
 struct PlayerBundle {
@@ -123,7 +124,6 @@ fn listen_movement_input(mut ev_movement: EventReader<MovementInputEvent>, mut m
 
 fn listen_for_knives(mut ev_player_hit: EventReader<PlayerHitEvent>, mut game_state: ResMut<NextState<GameState>>) {
     for event in ev_player_hit.read() {
-        println!("Ouch, we took {} damage.", event.damage);
         game_state.set(GameState::Menu);
     }
 }
@@ -143,7 +143,7 @@ fn animate_sprite(time: Res<Time>, mut query: Query<(&mut AnimationTimer, &mut T
     }
 }
 
-fn play_footsteps(audios: Res<PlayerAudioSources>, player_channel: Res<AudioChannel<PlayerAudioChannel>>, player_query: Query<&Player>) {
+fn play_footsteps(audios: Res<PlayerAudioSources>, player_channel: Res<AudioChannel<PlayerChannel>>, player_query: Query<&Player>) {
     let player = player_query.get_single().unwrap();
 
     if player.state == PlayerState::Walking && !player_channel.is_playing_sound() {
@@ -171,5 +171,22 @@ fn basic_state_machine(mut query: Query<(&mut Player, &Movement, &mut AnimationT
             *timer = AnimationTimer(Timer::from_seconds(0.125, TimerMode::Repeating));
             *atlas = animations.layout.clone().into();
         }
+    }
+}
+
+fn keep_player_in_bounds(window_query: Query<&Window, With<PrimaryWindow>>, mut query: Query<(&mut Transform, &Sprite), With<Player>>) {
+    let window = window_query.get_single().unwrap();
+    
+    let half_width = window.width() / 2.0;
+    let half_height = window.height() / 2.0;
+
+    for (mut transform, sprite) in query.iter_mut() {
+        let sprite_size = sprite.custom_size.unwrap_or(Vec2::ZERO) * transform.scale.truncate();
+
+        transform.translation.x = transform.translation.x
+            .clamp(-half_width + sprite_size.x / 2.0, half_width - sprite_size.x / 2.0);
+
+        transform.translation.y = transform.translation.y
+            .clamp(-half_height + sprite_size.y / 2.0, half_height - sprite_size.y / 2.0);
     }
 }

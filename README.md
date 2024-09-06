@@ -10,7 +10,7 @@ As I continue to learn, I will be gradually adding new features to enhance the g
 - **Basic Gameplay**: Move the player to avoid falling knives and collect coins.
 - **Score System**: Earn points for every coin collected and by letting the knifes touch the ground.
 - **Future Plans**: 
-  - Audio system
+  - Nothing planned at the moment. 
 
 ## Installation
 
